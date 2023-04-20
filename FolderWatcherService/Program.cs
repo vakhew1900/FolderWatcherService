@@ -2,18 +2,14 @@ namespace FolderWatcherBackgroundProgram
 {
     public class Program
     {
-        public static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-            
-            // добавление фонового процесса.
-            builder.Services.AddHostedService<FolderWatcherService>();
-           
-            var app = builder.Build();
-
-            app.MapGet("/", () => "Hello World!");
-
-            app.Run();
+            await new HostBuilder()
+            .ConfigureServices((hostContext, services) =>
+            {
+                services.AddHostedService<FolderWatcherService>();
+            })
+            .RunConsoleAsync();
         }
     }
 }
