@@ -1,3 +1,5 @@
+using FolderWatcherBackgroundProgram.instruments;
+
 namespace FolderWatcherBackgroundProgram
 {
     public class Program

@@ -1,4 +1,4 @@
-﻿namespace FolderWatcherBackgroundProgram
+﻿namespace FolderWatcherBackgroundProgram.instruments
 {
     public class FolderWatcherService : BackgroundService
     {
@@ -6,7 +6,7 @@
         {
             Console.WriteLine("Test");
             return Task.CompletedTask;
-           /* throw new NotImplementedException();*/
+            /* throw new NotImplementedException();*/
         }
     }
 }
