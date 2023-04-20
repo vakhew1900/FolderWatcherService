@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace FolderWatcherBackgroundProgram.instruments
+namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
 {
 
     public class FolderWatcher
@@ -14,9 +14,10 @@ namespace FolderWatcherBackgroundProgram.instruments
         private List<string> _deletedList = new();
         private List<string> _renamedList = new();
 
-        public FolderWatcher(string path) {
+        public FolderWatcher(string path)
+        {
 
-            
+
 
             _watcher = new FileSystemWatcher(@path)
             {
@@ -33,46 +34,42 @@ namespace FolderWatcherBackgroundProgram.instruments
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
             _watcher.Deleted += OnDeleted;
-           /* _watcher.Renamed += OnRenamed;*/
+            _watcher.Renamed += OnRenamed;
             _watcher.Error += OnError;
 
             _watcher.Filter = "*.*";
             _watcher.IncludeSubdirectories = true;
             _watcher.EnableRaisingEvents = true;
 
-            Console.WriteLine("Press enter to exit.");
-            Console.ReadLine();
         }
 
-        private void OnChanged(object sender, FileSystemEventArgs e)
+        protected virtual void OnChanged(object sender, FileSystemEventArgs e)
         {
-            Console.WriteLine("Changed" + e.FullPath);
+            
             _changedList.Add(e.Name);
         }
 
-        private  void OnCreated(object sender, FileSystemEventArgs e)
+        protected virtual void OnCreated(object sender, FileSystemEventArgs e)
         {
-            Console.WriteLine("Created" + e.FullPath);
             _createdList.Add(e.Name);
         }
 
-        private void OnDeleted(object sender, FileSystemEventArgs e)
+        protected virtual void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            Console.WriteLine("Deleted" + e.FullPath);
             _deletedList.Add(e.Name);
         }
 
-      /*  private  void OnRenamed(object sender, RenamedEventArgs e)
+        protected virtual void OnRenamed(object sender, RenamedEventArgs e)
         {
-            _renamedList.Add(e.Name);
-        }*/
+            _renamedList.Add($"{e.OldName} -> {e.Name}");
+        }
 
-        private void OnError(object sender, ErrorEventArgs e)
+        protected virtual void OnError(object sender, ErrorEventArgs e)
         {
             PrintException(e.GetException());
         }
 
-        private  void PrintException(Exception? ex)
+        private void PrintException(Exception? ex)
         {
             if (ex != null)
             {
@@ -95,9 +92,10 @@ namespace FolderWatcherBackgroundProgram.instruments
         public void WriteInfoAboutChangeFolder()
         {
             WriteList("Созданы", _createdList);
+            WriteList("Переименованы", _renamedList);
             WriteList("Обновлены", _changedList);
             WriteList("Удалены", _deletedList);
         }
-       
+
     }
 }
