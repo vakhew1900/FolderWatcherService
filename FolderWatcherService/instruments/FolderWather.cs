@@ -3,14 +3,22 @@ using System.Collections.Generic;
 
 namespace FolderWatcherBackgroundProgram.instruments
 {
+
     public abstract class FolderWather
     {
 
         FileSystemWatcher _watcher;
 
-        public FolderWather() {
+        private List<string> _createdList = new();
+        private List<string> _changedList = new();
+        private List<string> _deletedList = new();
+        private List<string> _renamedList = new();
 
-            _watcher = new FileSystemWatcher(@"C:\path\to\folder")
+        public FolderWather(string path) {
+
+            
+
+            _watcher = new FileSystemWatcher(@path)
             {
                 NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
@@ -25,7 +33,7 @@ namespace FolderWatcherBackgroundProgram.instruments
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
             _watcher.Deleted += OnDeleted;
-            _watcher.Renamed += OnRenamed;
+           /* _watcher.Renamed += OnRenamed;*/
             _watcher.Error += OnError;
 
             _watcher.Filter = "*.*";
@@ -36,35 +44,32 @@ namespace FolderWatcherBackgroundProgram.instruments
             Console.ReadLine();
         }
 
-        private static void OnChanged(object sender, FileSystemEventArgs e)
+        private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            if (e.ChangeType != WatcherChangeTypes.Changed)
-            {
-                return;
-            }
-            Console.WriteLine($"Changed: {e.FullPath}");
+            _changedList.Add(e.Name);
         }
 
-        private static void OnCreated(object sender, FileSystemEventArgs e)
+        private  void OnCreated(object sender, FileSystemEventArgs e)
         {
-            string value = $"Created: {e.FullPath}";
-            Console.WriteLine(value);
+            _createdList.Add(e.Name);
         }
 
-        private static void OnDeleted(object sender, FileSystemEventArgs e) =>
-            Console.WriteLine($"Deleted: {e.FullPath}");
-
-        private static void OnRenamed(object sender, RenamedEventArgs e)
+        private void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            Console.WriteLine($"Renamed: Old: {e.OldFullPath}");
-            Console.WriteLine($"    Old: {e.OldFullPath}");
-            Console.WriteLine($"    New: {e.FullPath}");
+            _deletedList.Add(e.Name);
         }
 
-        private static void OnError(object sender, ErrorEventArgs e) =>
+      /*  private  void OnRenamed(object sender, RenamedEventArgs e)
+        {
+            _renamedList.Add(e.Name);
+        }*/
+
+        private void OnError(object sender, ErrorEventArgs e)
+        {
             PrintException(e.GetException());
+        }
 
-        private static void PrintException(Exception? ex)
+        private  void PrintException(Exception? ex)
         {
             if (ex != null)
             {
@@ -75,7 +80,21 @@ namespace FolderWatcherBackgroundProgram.instruments
                 PrintException(ex.InnerException);
             }
         }
-    
 
+        private void WriteList(string title, List<string> list)
+        {
+            Console.WriteLine(title + ":");
+
+            list.ForEach(elem => Console.WriteLine("-" + elem));
+        }
+
+
+        public void WriteInfoAboutChangeFolder()
+        {
+            WriteList("Созданы", _createdList);
+            WriteList("Обновлены", _changedList);
+            WriteList("Удалены", _deletedList);
+        }
+       
     }
 }
