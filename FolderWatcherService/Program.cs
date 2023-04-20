@@ -10,6 +10,12 @@ namespace FolderWatcherBackgroundProgram
             .ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<FolderWatcherService>();
+                services.AddLogging();
+            })
+            .ConfigureLogging((hostContext, configLogging) =>
+            {
+                configLogging.AddConsole();
+                configLogging.AddDebug();
             })
             .RunConsoleAsync();
         }

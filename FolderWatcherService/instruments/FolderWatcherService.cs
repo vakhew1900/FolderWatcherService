@@ -2,11 +2,21 @@
 {
     public class FolderWatcherService : BackgroundService
     {
+       
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("Test");
+            string path = @"E:\3_course\2sem\test";
+            var folderWatcher = new FolderWatcher(path);
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+
+            }
+
+            folderWatcher.WriteInfoAboutChangeFolder();
+            Task.Delay(5000).Wait();
+
             return Task.CompletedTask;
-            /* throw new NotImplementedException();*/
         }
     }
 }

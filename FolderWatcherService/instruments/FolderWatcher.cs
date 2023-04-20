@@ -4,17 +4,17 @@ using System.Collections.Generic;
 namespace FolderWatcherBackgroundProgram.instruments
 {
 
-    public abstract class FolderWather
+    public class FolderWatcher
     {
 
-        FileSystemWatcher _watcher;
+        private FileSystemWatcher _watcher;
 
         private List<string> _createdList = new();
         private List<string> _changedList = new();
         private List<string> _deletedList = new();
         private List<string> _renamedList = new();
 
-        public FolderWather(string path) {
+        public FolderWatcher(string path) {
 
             
 
@@ -46,16 +46,19 @@ namespace FolderWatcherBackgroundProgram.instruments
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
+            Console.WriteLine("Changed" + e.FullPath);
             _changedList.Add(e.Name);
         }
 
         private  void OnCreated(object sender, FileSystemEventArgs e)
         {
+            Console.WriteLine("Created" + e.FullPath);
             _createdList.Add(e.Name);
         }
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
+            Console.WriteLine("Deleted" + e.FullPath);
             _deletedList.Add(e.Name);
         }
 
