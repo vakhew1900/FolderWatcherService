@@ -17,7 +17,10 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
         public FolderWatcher(string path)
         {
 
-
+            if (Directory.Exists(path) == false)
+            {
+                throw new System.ArgumentException("File or Directory is not Exist");
+            }
 
             _watcher = new FileSystemWatcher(@path)
             {
