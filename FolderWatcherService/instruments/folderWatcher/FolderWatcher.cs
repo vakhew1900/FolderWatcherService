@@ -9,10 +9,10 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
 
         private FileSystemWatcher _watcher;
 
-        private List<string> _createdList = new();
-        private List<string> _changedList = new();
-        private List<string> _deletedList = new();
-        private List<string> _renamedList = new();
+        private SortedSet<string> _createdSet = new();
+        private SortedSet<string> _changedSet = new();
+        private SortedSet<string> _deletedSet = new();
+        private SortedSet<string> _renamedSet = new();
 
         public FolderWatcher(string path)
         {
@@ -49,22 +49,22 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
         protected virtual void OnChanged(object sender, FileSystemEventArgs e)
         {
             
-            _changedList.Add(e.Name);
+            _changedSet.Add(e.Name);
         }
 
         protected virtual void OnCreated(object sender, FileSystemEventArgs e)
         {
-            _createdList.Add(e.Name);
+            _createdSet.Add(e.Name);
         }
 
         protected virtual void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            _deletedList.Add(e.Name);
+            _deletedSet.Add(e.Name);
         }
 
         protected virtual void OnRenamed(object sender, RenamedEventArgs e)
         {
-            _renamedList.Add($"{e.OldName} -> {e.Name}");
+            _renamedSet.Add($"{e.OldName} -> {e.Name}");
         }
 
         protected virtual void OnError(object sender, ErrorEventArgs e)
@@ -84,20 +84,23 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
             }
         }
 
-        private void WriteList(string title, List<string> list)
+        private void WriteList(string title, SortedSet<string> set)
         {
             Console.WriteLine(title + ":");
 
-            list.ForEach(elem => Console.WriteLine("-" + elem));
+            foreach(var elem in set)
+            {
+                Console.WriteLine("- " + elem);
+            }
         }
 
 
         public void WriteInfoAboutChangeFolder()
         {
-            WriteList("Созданы", _createdList);
-            WriteList("Переименованы", _renamedList);
-            WriteList("Обновлены", _changedList);
-            WriteList("Удалены", _deletedList);
+            WriteList("Созданы", _createdSet);
+            WriteList("Переименованы", _renamedSet);
+            WriteList("Обновлены", _changedSet);
+            WriteList("Удалены", _deletedSet);
         }
 
     }

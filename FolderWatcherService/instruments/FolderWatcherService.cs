@@ -27,7 +27,7 @@ namespace FolderWatcherBackgroundProgram.instruments
                 var folderWatcher = new LoggingFolderWatcher(path);
 
 
-                _logger.LogInformation($"Start watching for ${_pathConfig.Path}");
+                _logger.LogInformation($"Start watching for {_pathConfig.Path}");
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
@@ -42,7 +42,6 @@ namespace FolderWatcherBackgroundProgram.instruments
             catch (System.ArgumentException ex)
             {
                 _logger.LogError(ex.Message);
-                return Task.CompletedTask;
             }
 
 

@@ -9,24 +9,36 @@ namespace FolderWatcherBackgroundProgram
     {
         static async Task Main(string[] args)
         {
-            await new HostBuilder()
-            .ConfigureLogging((hostContext, configLogging) =>
+            var builder = new HostBuilder();
+
+            builder.ConfigureLogging((hostContext, configLogging) =>
             {
                 configLogging.AddConsole();
                 configLogging.AddDebug();
-            })
-            .ConfigureHostConfiguration(hostConfig =>
-               {
-                   hostConfig.AddJsonFile("config.json");
-               })
-            .ConfigureServices((hostContext, services) =>
+            });
+
+             builder.ConfigureHostConfiguration(hostConfig =>
+                {
+                    hostConfig.AddJsonFile("config.json");
+                });
+
+
+             builder.ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<FolderWatcherService>();
                 services.AddLogging();
                 var pathConfig = hostContext.Configuration.GetSection("PathConfig");
                 services.Configure<PathConfig>(pathConfig);
-            })
-            .RunConsoleAsync();
+            });
+
+            try
+            {
+                await builder.RunConsoleAsync();
+            }
+            catch (System.IO.InvalidDataException)
+            {
+                Console.WriteLine("Incorrect config file. Please path for config and  configContent");
+            }
         }
     }
 }
