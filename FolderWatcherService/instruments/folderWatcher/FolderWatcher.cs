@@ -12,7 +12,7 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
         private SortedSet<string> _createdSet = new();
         private SortedSet<string> _changedSet = new();
         private SortedSet<string> _deletedSet = new();
-        private SortedSet<string> _renamedSet = new();
+        private SortedSet<string> _renamedList = new();
 
         public FolderWatcher(string path)
         {
@@ -64,7 +64,7 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
 
         protected virtual void OnRenamed(object sender, RenamedEventArgs e)
         {
-            _renamedSet.Add($"{e.OldName} -> {e.Name}");
+            _renamedList.Add($"{e.OldName} -> {e.Name}");
         }
 
         protected virtual void OnError(object sender, ErrorEventArgs e)
@@ -98,7 +98,7 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
         public void WriteInfoAboutChangeFolder()
         {
             WriteList("Созданы", _createdSet);
-            WriteList("Переименованы", _renamedSet);
+            WriteList("Переименованы", _renamedList);
             WriteList("Обновлены", _changedSet);
             WriteList("Удалены", _deletedSet);
         }

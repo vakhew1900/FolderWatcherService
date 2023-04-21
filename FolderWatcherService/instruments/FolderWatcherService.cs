@@ -20,10 +20,14 @@ namespace FolderWatcherBackgroundProgram.instruments
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            string path = _pathConfig.Path;
-            Console.WriteLine(path);
+
+            
             try
             {
+               
+                string path = _pathConfig.Path;
+
+                Console.WriteLine(path);
                 var folderWatcher = new LoggingFolderWatcher(path);
 
 
