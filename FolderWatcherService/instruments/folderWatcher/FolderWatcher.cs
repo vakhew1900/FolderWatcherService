@@ -8,19 +8,24 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
     {
 
         private FileSystemWatcher _watcher;
+        public string Path { get; private set; }
 
         private SortedSet<string> _createdSet = new();
         private SortedSet<string> _changedSet = new();
         private SortedSet<string> _deletedSet = new();
-        private SortedSet<string> _renamedList = new();
+        private SortedSet<string> _renamedSet = new();
 
         public FolderWatcher(string path)
         {
-
+                
             if (Directory.Exists(path) == false)
             {
+                Console.WriteLine("dfskjaffhdslafs");
                 throw new System.ArgumentException("File or Directory is not Exist");
             }
+
+            Path = path;
+
 
             _watcher = new FileSystemWatcher(@path)
             {
@@ -64,7 +69,7 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
 
         protected virtual void OnRenamed(object sender, RenamedEventArgs e)
         {
-            _renamedList.Add($"{e.OldName} -> {e.Name}");
+            _renamedSet.Add($"{e.OldName} -> {e.Name}");
         }
 
         protected virtual void OnError(object sender, ErrorEventArgs e)
@@ -98,7 +103,7 @@ namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
         public void WriteInfoAboutChangeFolder()
         {
             WriteList("Созданы", _createdSet);
-            WriteList("Переименованы", _renamedList);
+            WriteList("Переименованы", _renamedSet);
             WriteList("Обновлены", _changedSet);
             WriteList("Удалены", _deletedSet);
         }

@@ -1,6 +1,7 @@
 ﻿using FolderWatcherBackgroundProgram.config;
 using FolderWatcherBackgroundProgram.instruments.folderWatcher;
 using Microsoft.Extensions.Options;
+using System.IO;
 
 namespace FolderWatcherBackgroundProgram.instruments
 {
@@ -10,7 +11,11 @@ namespace FolderWatcherBackgroundProgram.instruments
         private IOptionsMonitor<PathConfig> _optionsMonitor;
         private ILogger<FolderWatcherService> _logger;
         protected internal virtual IDisposable _changeListener { get; }
-        private CancellationToken _cancellationToken;
+        private FolderWatcher _folderWatcher;
+        
+        private bool isError = false;
+        private string errorMessage;
+
         public FolderWatcherService(IOptionsMonitor<PathConfig> optionsMonitor, ILogger<FolderWatcherService> logger)
         {
            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
@@ -22,6 +27,29 @@ namespace FolderWatcherBackgroundProgram.instruments
 
         private void OnMyOptionsChange(PathConfig arg1, string? arg2)
         {
+            if (_folderWatcher != null)
+            {
+                finishMessage();
+            }
+
+            _logger.LogInformation($"Update watching folder. Now it`s {_optionsMonitor.CurrentValue.Path}");
+
+            
+            _folderWatcher = null; //специально обнуляем чтобы не следить не за одной из папок
+
+            try
+            {
+
+                string path = _optionsMonitor.CurrentValue.Path;
+               _folderWatcher = new LoggingFolderWatcher(path);
+            }
+            catch(System.ArgumentException ex)
+            {
+                isError = true;
+                Console.WriteLine(isError);
+                errorMessage = ex.Message;
+            }
+            
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,11 +58,9 @@ namespace FolderWatcherBackgroundProgram.instruments
             
             try
             {
-                _cancellationToken = stoppingToken;
+               
                 string path = _optionsMonitor.CurrentValue.Path;
-
-                Console.WriteLine(path);
-                var folderWatcher = new LoggingFolderWatcher(path);
+                _folderWatcher = new LoggingFolderWatcher(path);
 
 
                 _logger.LogInformation($"Start watching for {path}");
@@ -42,11 +68,16 @@ namespace FolderWatcherBackgroundProgram.instruments
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     
+                    if (isError == true) 
+                    {
+                        isError = false;
+                        _logger.LogError(errorMessage);
+                    }
                 }
 
-                _logger.LogInformation($"finish watching for {path}");
+                finishMessage();
 
-                folderWatcher.WriteInfoAboutChangeFolder();
+
                 Task.Delay(200).Wait();
             }
             catch (System.ArgumentException ex)
@@ -60,6 +91,12 @@ namespace FolderWatcherBackgroundProgram.instruments
             return Task.CompletedTask;
         }
 
+
+        private void finishMessage()
+        {
+            _logger.LogInformation($"finish watching for {_folderWatcher.Path}");
+            _folderWatcher.WriteInfoAboutChangeFolder();
+        }
        
         public override void Dispose()
         {
