@@ -7,16 +7,22 @@ namespace FolderWatcherBackgroundProgram.instruments
     public class FolderWatcherService : BackgroundService
     {
 
-        PathConfig _pathConfig;
-        ILogger<FolderWatcherService> _logger;
-        public FolderWatcherService(IOptions<PathConfig> options, ILogger<FolderWatcherService> logger)
+        private IOptionsMonitor<PathConfig> _optionsMonitor;
+        private ILogger<FolderWatcherService> _logger;
+        protected internal virtual IDisposable _changeListener { get; }
+        private CancellationToken _cancellationToken;
+        public FolderWatcherService(IOptionsMonitor<PathConfig> optionsMonitor, ILogger<FolderWatcherService> logger)
         {
-            _pathConfig = options.Value;
-            _logger = logger;
+           _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+            _changeListener = _optionsMonitor.OnChange(listener: OnMyOptionsChange);
+           _logger = logger;
+        
+             
         }
 
-
-
+        private void OnMyOptionsChange(PathConfig arg1, string? arg2)
+        {
+        }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -24,24 +30,24 @@ namespace FolderWatcherBackgroundProgram.instruments
             
             try
             {
-               
-                string path = _pathConfig.Path;
+                _cancellationToken = stoppingToken;
+                string path = _optionsMonitor.CurrentValue.Path;
 
                 Console.WriteLine(path);
                 var folderWatcher = new LoggingFolderWatcher(path);
 
 
-                _logger.LogInformation($"Start watching for {_pathConfig.Path}");
+                _logger.LogInformation($"Start watching for {path}");
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-
+                    
                 }
 
-                _logger.LogInformation($"finish watching for {_pathConfig.Path}");
+                _logger.LogInformation($"finish watching for {path}");
 
                 folderWatcher.WriteInfoAboutChangeFolder();
-                Task.Delay(2000).Wait();
+                Task.Delay(200).Wait();
             }
             catch (System.ArgumentException ex)
             {
@@ -52,6 +58,13 @@ namespace FolderWatcherBackgroundProgram.instruments
 
 
             return Task.CompletedTask;
+        }
+
+       
+        public override void Dispose()
+        {
+            _changeListener.Dispose();
+            base.Dispose();
         }
 
 

@@ -19,12 +19,14 @@ namespace FolderWatcherBackgroundProgram
 
              builder.ConfigureHostConfiguration(hostConfig =>
                 {
-                    hostConfig.AddJsonFile("config.json");
+                    hostConfig.SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("config.json", optional: false, reloadOnChange: true).AddEnvironmentVariables().Build();
                 });
+
 
 
              builder.ConfigureServices((hostContext, services) =>
             {
+               
                 services.AddHostedService<FolderWatcherService>();
                 services.AddLogging();
                 var pathConfig = hostContext.Configuration.GetSection("PathConfig");

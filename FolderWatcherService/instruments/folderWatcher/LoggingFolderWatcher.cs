@@ -2,6 +2,7 @@
 
 namespace FolderWatcherBackgroundProgram.instruments.folderWatcher
 {
+
     public class LoggingFolderWatcher : FolderWatcher
     {
           
